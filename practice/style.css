@@ -76,7 +76,7 @@ nav ul {
     padding: 10px;
 }
 
-@media (max-width: 600) {
+@media (max-width: 600px) {
     header {
         padding: 0;
     }
