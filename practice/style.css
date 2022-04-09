@@ -66,5 +66,12 @@ td {
 }
 
 nav ul {
+    display: flex;
+    justify-content: space-around;
     list-style-type: none;
+}
+
+.header-nav-item {
+    margin: 5px;
+    padding: 10px;
 }
