@@ -78,8 +78,11 @@ nav ul {
 
 @media (max-width: 600) {
     header {
-        background-color: yellow;
         padding: 0;
+    }
+
+    h1 {
+        color: yellow;
     }
     
     main {
