@@ -80,6 +80,10 @@ nav ul {
     header {
         padding: 0;
     }
+
+    h1 {
+        color: yellow;
+    }
     
     main {
         margin: 0;
