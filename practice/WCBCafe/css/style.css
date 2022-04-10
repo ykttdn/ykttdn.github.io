@@ -94,10 +94,25 @@ img {
   min-height: 100vh;
 }
 
-/* #home .page-title {
-  text-transform: none;
-} */
+#news {
+  background-image: url(../images/news-bg.jpg);
+  height: 270px;
+}
+
+#news .page-title {
+  text-align: center;
+}
 
 aside {
   text-align: center;
+}
+
+footer {
+  background-color: #432;
+  text-align: center;
+  padding: 26px 0;
+}
+
+footer p {
+  color: white;
 }
