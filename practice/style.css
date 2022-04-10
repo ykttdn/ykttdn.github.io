@@ -1,87 +1,87 @@
 @charset "utf-8";
 body {
-    background-color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
+  background-color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 header {
-    background-color: orange;
+  background-color: orange;
 }
 
 footer,
 header h1,
 header nav,
 main {
-    margin-left: 10%;
-    margin-right: 20%;
+  margin-left: 10%;
+  margin-right: 20%;
 }
 
 ul,
 ol {
-    border: 1px solid red;
-    list-style-position: inside;
+  border: 1px solid red;
+  list-style-position: inside;
 }
 
 li {
-    border: 1px solid blue;
-    line-height: 1.7;
-    padding-left: 8px;
+  border: 1px solid blue;
+  line-height: 1.7;
+  padding-left: 8px;
 }
 
 h1 {
-    background-color: orange;
-    border: 1px solid red;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
+  background-color: orange;
+  border: 1px solid red;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
 }
 
 h2 {
-    border-bottom: 5px solid orange;
-    margin: 30px 0 30px;
-    padding: 7px;
+  border-bottom: 5px solid orange;
+  margin: 30px 0 30px;
+  padding: 7px;
 }
 
 p {
-    line-height: 1.9;
-    margin-bottom: 10px;
-    text-align: justify;
+  line-height: 1.9;
+  margin-bottom: 10px;
+  text-align: justify;
 }
 
 code {
-    background-color: #eee;
-    border-radius: 3px;
-    font-family: monospace, Courier;
-    padding: 0 3px;
+  background-color: #eee;
+  border-radius: 3px;
+  font-family: monospace, Courier;
+  padding: 0 3px;
 }
 
 th,
 td {
-    border: 1px solid black;
-    padding: 6px;
+  border: 1px solid black;
+  padding: 6px;
 }
 
 td {
-    background-color: #ddd;
-    text-align: center;
+  background-color: #ddd;
+  text-align: center;
 }
 
 nav ul {
-    display: flex;
-    justify-content: space-around;
-    list-style-type: none;
+  display: flex;
+  justify-content: space-around;
+  list-style-type: none;
 }
 
 .header-nav-item {
-    margin: 5px;
-    padding: 10px;
+  margin: 5px;
+  padding: 10px;
 }
 
 @media (max-width: 600px) {
-    footer,
-    header h1,
-    header nav,
-    main {
-        margin: 0 5%
-    }
+  footer,
+  header h1,
+  header nav,
+  main {
+      margin: 0 5%
+  }
 }
