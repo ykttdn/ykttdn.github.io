@@ -6,15 +6,14 @@ body {
 
 header {
     background-color: orange;
-    padding-left: 150px;
-    padding-right: 150px;
-    /* position: sticky;
-    top: 0; */
 }
 
+footer,
+header h1,
+header nav,
 main {
-    margin-left: 150px;
-    margin-right: 350px;
+    margin-left: 10%;
+    margin-right: 20%;
 }
 
 ul,
@@ -31,6 +30,7 @@ li {
 
 h1 {
     background-color: orange;
+    border: 1px solid red;
     color: white;
     font-weight: bold;
     padding: 10px;
@@ -45,6 +45,7 @@ h2 {
 p {
     line-height: 1.9;
     margin-bottom: 10px;
+    text-align: justify;
 }
 
 code {
@@ -77,15 +78,10 @@ nav ul {
 }
 
 @media (max-width: 600px) {
-    header {
-        padding: 0;
-    }
-
-    h1 {
-        color: yellow;
-    }
-    
+    footer,
+    header h1,
+    header nav,
     main {
-        margin: 0;
+        margin: 0 5%
     }
 }
