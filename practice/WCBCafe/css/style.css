@@ -119,11 +119,17 @@ footer p {
 }
 
 article {
-  width: 74%;
+  width: 60%;
+  order: 2;
 }
 
 aside {
   width: 22%;
+  order: 3;
+}
+
+.ad {
+  order: 1;
 }
 
 .news-contents {
