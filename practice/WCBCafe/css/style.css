@@ -215,6 +215,44 @@ aside p {
   color: #0bd;
 }
 
+#menu {
+  background-image: url(../images/menu-bg.jpg);
+  min-height: 100vh;
+}
+
+.menu-content {
+  max-width: 560px;
+  margin-top: 10%;
+}
+
+.menu-content .page-title {
+  text-align: center;
+}
+
+.menu-content p {
+  font-size: 1.125rem;
+  margin: 10px 0 0;
+}
+
+.grid {
+  display: grid;
+  gap: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 6%;
+  margin-bottom: 50px;
+}
+
+.big-box {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+}
+
+.big-box img {
+  height: 94%;
+  width: 100%;
+  object-fit: cover;
+}
+
 @media (max-width: 600px) {
   .page-title {
     font-size: 2.5rem;
@@ -282,5 +320,18 @@ aside p {
 
   .ad {
     display: none;
+  }
+
+  .menu-content {
+    margin-top: 20%;
+  }
+
+  .big-box {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .big-box img {
+    height: auto;
   }
 }
