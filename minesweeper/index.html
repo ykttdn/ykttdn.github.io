@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Minesweeper</title>
+    <meta name="description" content="Minesweeper">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- reset CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a1a82f0e59.js" crossorigin="anonymous"></script>
+
+    <!-- Google Fonts - Roboto Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header class="wrapper">
+      <h1>Minesweeper</h1>
+    </header>
+
+    <main class="wrapper">
+      <div class="level-selection">
+        <label for="level">Level:</label>
+        <select name="level" id="level">
+          <option value="easy">EASY</option>
+          <option value="normal">NORMAL</option>
+          <option value="hard">HARD</option>
+        </select>
+      </div>
+
+      <div class="play-area">
+        <div class="top-area">
+          <div class="remains"></div>
+    
+          <div class="reset-btn"></div>
+    
+          <div class="timer">000</div>
+        </div>
+
+        <div class="board"></div>
+      </div>
+
+      <div class="bottom-area">
+        <div class="switch"></div>
+        <i class="fa-solid fa-flag flag-icon"></i>
+      </div>
+    </main>
+
+    <script src="main.js"></script>
+  </body>
+</html>
