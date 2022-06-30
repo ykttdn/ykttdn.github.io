@@ -1,16 +1,40 @@
-const HEIGHT_EASY = 9;
-const HEIGHT_NORMAL = 16;
-const HEIGHT_HARD = 16;
-const WIDTH_EASY = 9;
-const WIDTH_NORMAL = 16;
-const WIDTH_HARD = 30;
-const MINES_EASY = 10;
-const MINES_NORMAL = 40;
-const MINES_HARD = 99;
+const heightEasy = 9;
+const heightNormal = 16;
+const heightHard = 16;
+const widthEasy = 9;
+const widthNormal = 16;
+const widthHard = 30;
+const minesEasy = 10;
+const minesNormal = 40;
+const minesHard = 99;
 
-let height = HEIGHT_EASY;
-let width = WIDTH_EASY;
-let mines = MINES_EASY;
+let height = heightEasy;
+let width = widthEasy;
+let mines = minesEasy;
+
+const selector = document.getElementsByTagName('select')[0];
+selector.addEventListener('change', function (e) {
+  const level = e.target.value;
+  if (level === 'easy') {
+    height = heightEasy;
+    width = widthEasy;
+    mines = minesEasy;
+  } else if (level === 'normal') {
+    height = heightNormal;
+    width = widthNormal;
+    mines = minesNormal;
+  } else {
+    height = heightHard;
+    width = widthHard;
+    mines = minesHard;
+  }
+
+  initGame();
+});
+
+let isMineHidden = gen2DArray(height, width, false);
+let isCellOpen = gen2DArray(height, width, false);
+let isMarkedWithFlag = gen2DArray(height, width, false);
 
 let hasGameStarted = false;
 let hasOpenedMinedCell = false;
@@ -19,291 +43,47 @@ let safeCellCount = height*width-mines;
 let remainingMines = mines;
 
 const remains = document.getElementsByClassName('remains')[0];
-const setMineCounter = () => {
-  if (remainingMines <= -100) {
-    remains.textContent = `-99`;
-  } else if (remainingMines <= -10) {
-    remains.textContent = remainingMines;
-  } else if (remainingMines <= -1) {
-    remains.textContent = `- ${-remainingMines}`;
-  } else if (remainingMines <= 9) {
-    remains.textContent = `00${remainingMines}`;
-  } else if (remainingMines <= 99) {
-    remains.textContent = `0${remainingMines}`;
-  } else if (remainingMines <= 999) {
-    remains.textContent = remainingMines;
-  } else {
-    remains.textContent = `999`;
-  }
+if (remainingMines < 10) {
+  remains.textContent = `00${remainingMines}`;
+} else if (remainingMines < 100) {
+  remains.textContent = `0${remainingMines}`;
 }
-setMineCounter();
 
 
 const timer = document.getElementsByClassName('timer')[0];
 let intervalId;
-const advanceTimer = () => {
-  let now = strToInt(timer.textContent);
-  now++;
-  if (now < 10) {
-    timer.textContent = `00${now}`;
-  } else if (now < 100) {
-    timer.textContent = `0${now}`;
-  } else if (now < 1000) {
-    timer.textContent = `${now}`;
-  } else {
-    stopTimer();
-  }
-}
-const stopTimer = () => {
-  clearInterval(intervalId);
-  intervalId = null;
-}
 
-class Cell {
-  constructor() {
-    this.isMineHiddenIn = false;
-    this.isOpened = false;
-    this.isFlagged = false;
-  }
-}
-let cells = JSON.parse(JSON.stringify((new Array(height)).fill((new Array(width)).fill(new Cell()))));
+const faceNormal = '<i class="fa-solid fa-face-smile"></i>';
+const faceSuccess = '<i class="fa-solid fa-face-laugh-squint"></i>';
+const faceFailure = '<i class="fa-solid fa-face-dizzy"></i>';
 
-const initializeGame = () => {
-  cells = JSON.parse(JSON.stringify((new Array(height)).fill((new Array(width)).fill(new Cell()))));
-
-  hasGameStarted = false;
-  hasOpenedMinedCell = false;
-  hasOpenedAllSafeCells = false;
-  safeCellCount = height*width-mines;
-  remainingMines = mines;
-  setMineCounter();
-  changeFaceOfResetButton(FACE_NORMAL);
-  timer.textContent = '000';
-  stopTimer();
-
-  initializeBoard();
-}
-
-const FACE_NORMAL = twemoji.convert.fromCodePoint('1F642');
-const FACE_SUCCESS = twemoji.convert.fromCodePoint('1F60E');
-const FACE_FAILURE = twemoji.convert.fromCodePoint('1F635');
-
-const resetButton = document.getElementsByClassName('reset-button')[0];
-resetButton.addEventListener('click', initializeGame);
-const changeFaceOfResetButton = (face) => {
-  resetButton.textContent = face;
-  twemoji.parse(resetButton, {
-    folder: 'svg',
-    ext: '.svg'
-  });
-}
-changeFaceOfResetButton(FACE_NORMAL);
+const resetBtn = document.getElementsByClassName('reset-btn')[0];
+resetBtn.innerHTML = faceNormal;
+resetBtn.addEventListener('click', initGame);
 
 const board = document.getElementsByClassName('board')[0];
-const documentFragment = document.createDocumentFragment();
+const df = document.createDocumentFragment();
 
-const UNOPENED_CELL = 'cell cell--unopened';
-const OPENED_CELL = 'cell cell--opened';
-const FLAGGED_CELL = 'cell cell--unopened cell--flagged';
-const WRONGLY_FLAGGED_CELL = 'cell cell--unopened cell--flagged cell--flagged-wrongly';
-const MINED_CELL = 'cell cell--unopened cell--mined';
-const EXPLODED_CELL = 'cell cell--exploded';
+initBoard();
 
-const strToInt = (str) => parseInt(str, 10);
+const switchBtn = document.getElementsByClassName('switch')[0];
+let isFlagModeOn = false;
+switchBtn.addEventListener('click', function (e) {
+  isFlagModeOn = switchBtn.classList.toggle('switch--on');
+});
 
-// 0 以上 val 未満の整数乱数を返す
-const random = (val) =>  Math.floor(Math.random()*val);
-
-const initializeMines = e => {
-  const cell = e.target;
-  const rowTouchedFirst = strToInt(cell.dataset.row);
-  const columnTouchedFirst = strToInt(cell.dataset.col);
-
-  if (!hasGameStarted) {
-    hasGameStarted = true;
-    for (let k = 0; k < mines; k++) {
-      while (true) {
-        const rowPickedRandomly = random(height);
-        const columnPickedRandomly = random(width);
-        if (!cells[rowPickedRandomly][columnPickedRandomly].isMineHiddenIn && !(rowTouchedFirst === rowPickedRandomly && columnTouchedFirst === columnPickedRandomly)) {
-          cells[rowPickedRandomly][columnPickedRandomly].isMineHiddenIn = true;
-          break;
-        }
-      }
-
-      /*
-      let row = random(height);
-      let col = random(width);
-      if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {
-        // (row, col)成分に爆弾が埋められていない，かつ，(row, col)成分が最初に開いたcellでないとき
-        cells[row][col].isMineHiddenIn = true;
-      } else {
-        // (row, col)成分に爆弾が埋められている，または，(row,col)成分が最初に開いたcellのとき
-        // (row, col)成分の右隣のcellに移動し続け，そこに爆弾がなければ埋める
-        while (true) {
-          col++;
-          if (col === width) {
-            col = 0;
-            row++;
-            if (row === height) {
-              row = 0;
-            }
-          }
-          if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {
-            cells[row][col].isMineHiddenIn = 1;
-            break;
-          }
-        }
-      }
-      */
-    }
+// m 行 n 列の2次元配列を生成
+function gen2DArray(m, n, val) {
+  let table = new Array(m);
+  for (let i = 0; i < table.length; i++) {
+    table[i] = new Array(n).fill(val);
   }
+  return table;
 }
 
-const openSafeCell = (i, j) => {
-  const cell = document.getElementById(`cell-${i}-${j}`);
-  cells[i][j].isOpened = true;
-  cell.className = OPENED_CELL;
-
-  safeCellCount--;
-}
-
-// row 行 col 列のマスの周囲8個のマスの行・列を返す
-const getNeighborCellsIndex = (row, col) => {
-  return [[row-1, col-1], [row-1, col], [row-1, col+1],
-          [row, col-1],                 [row, col+1],
-          [row+1, col-1], [row+1, col], [row+1, col+1]];
-}
-
-// row 行 col 列の cell が board に含まれているかを判定
-const checkIfCellIsInsideBoard = (row, col) => 0 <= row && row < height && 0 <= col && col < width;
-
-const searchMines = (i, j) => {
-  let cnt = 0;
-  const neighborCells = getNeighborCellsIndex(i, j);
-
-  for (const [row, col] of neighborCells) {
-    if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isMineHiddenIn) {
-      cnt++;
-    }
-  }
-
-  if (cnt > 0) {
-    const cell = document.getElementById(`cell-${i}-${j}`);
-    cell.textContent = cnt;
-    cell.classList.add(`cnt-${cnt}`);
-  } else if (!hasOpenedMinedCell) {
-    for (const [row, col] of neighborCells) {
-      if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened) {
-        openSafeCell(row, col);
-        searchMines(row, col);
-      }
-    }
-  }
-}
-
-const openCell = e => {
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-
-  if (!cells[i][j].isOpened && !cells[i][j].isFlagged) {
-    if (cells[i][j].isMineHiddenIn) {
-      cells[i][j].isOpened = true;
-      hasOpenedMinedCell = true;
-      cell.className = EXPLODED_CELL;
-    } else {
-      openSafeCell(i, j);
-      searchMines(i, j);
-    }
-  }
-}
-
-const toggleFlag = e => {
-  e.preventDefault();
-
-  if (!intervalId) {
-    intervalId = setInterval(advanceTimer, 1000);
-  }
-
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-  if (!cells[i][j].isOpened) {
-    if (!cells[i][j].isFlagged) {
-      cells[i][j].isFlagged = true;
-      cell.className = FLAGGED_CELL;
-
-      remainingMines--;
-      setMineCounter();
-    } else {
-      cells[i][j].isFlagged = false;
-      cell.className = UNOPENED_CELL;
-
-      remainingMines++;
-      setMineCounter();
-    }
-  }
-}
-
-const exeChording = e => {
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-
-  if (cells[i][j].isOpened) {
-    const mineCount = strToInt(cell.textContent);
-
-    let flagCount = 0;
-    const neighborCells = getNeighborCellsIndex(i, j);
-
-    for (const [row, col] of neighborCells) {
-      if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isFlagged) {
-        flagCount++;
-      }
-    }
-
-    if (mineCount === flagCount) {
-      let canExeChording = true;
-      for (const [row, col] of neighborCells) {
-        if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isFlagged && !cells[row][col].isMineHiddenIn) {
-          canExeChording = false;
-        }
-      }
-
-      if (canExeChording) {
-        for (const [row, col] of neighborCells) {
-          if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened && !cells[row][col].isFlagged) {
-            openSafeCell(row, col);
-            searchMines(row, col);
-          }
-        }
-      } else {
-        hasOpenedMinedCell = true;
-        for (const [row, col] of neighborCells) {
-          const c = document.getElementById(`cell-${row}-${col}`);
-          if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened) {
-            if (cells[row][col].isFlagged && !cells[row][col].isMineHiddenIn) {
-              // cell-${row}-${col}に爆弾がないのにflagが立てられているとき
-              c.className = WRONGLY_FLAGGED_CELL;
-            } else if (!cells[row][col].isFlagged && cells[row][col].isMineHiddenIn) {
-              // cell-${row}-${col}に爆弾があるのにflagが立っていないとき
-              c.className = EXPLODED_CELL;
-            } else if (!cells[row][col].isFlagged) {
-              // cell-${row}-${col}に爆弾がなくてflagも立っていないとき
-              openSafeCell(row, col);
-              searchMines(row, col);
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-const touchCell = e => {
+function touchCell(e) {
   if (!hasGameStarted && !isFlagModeOn) {
-    initializeMines(e);
+    initMines(e);
     openCell(e);
 
     if (!intervalId) {
@@ -311,15 +91,15 @@ const touchCell = e => {
     }
   } else {
     const cell = e.target;
-    const i = strToInt(cell.dataset.row);
-    const j = strToInt(cell.dataset.col);
+    const i = strToInt(cell.dataset.col);
+    const j = strToInt(cell.dataset.row);
 
-    if (isFlagModeOn && !cells[i][j].isOpened) {
+    if (isFlagModeOn && !isCellOpen[i][j]) {
       toggleFlag(e);
       if (!intervalId) {
         intervalId = setInterval(advanceTimer, 1000);
       }
-    } else if (!cells[i][j].isOpened) {
+    } else if (!isCellOpen[i][j]) {
       openCell(e);
     } else {
       exeChording(e);
@@ -340,27 +120,26 @@ const touchCell = e => {
       }
 
       if (hasOpenedMinedCell) {
-        changeFaceOfResetButton(FACE_FAILURE);
+        resetBtn.innerHTML = faceFailure;
         for (let i = 0; i < height; i++) {
           for (let j = 0; j < width; j++) {
-            if (!cells[i][j].isOpened && cells[i][j].isMineHiddenIn && !cells[i][j].isFlagged) {
+            if (!isCellOpen[i][j] && isMineHidden[i][j] && !isMarkedWithFlag[i][j]) {
               const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = MINED_CELL;
-            } else if (!cells[i][j].isOpened && !cells[i][j].isMineHiddenIn && cells[i][j].isFlagged) {
+              cell.className = 'cell cell--unopen cell--mined';
+            } else if (!isCellOpen[i][j] && !isMineHidden[i][j] && isMarkedWithFlag[i][j]) {
               const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = WRONGLY_FLAGGED_CELL;
+              cell.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
             }
           }
         }
       } else {
-        changeFaceOfResetButton(FACE_SUCCESS);
-        remainingMines = 0;
-        setMineCounter();
+        resetBtn.innerHTML = faceSuccess;
+        remains.textContent = '000';
         for (let i = 0; i < height; i++) {
           for (let j = 0; j < width; j++) {
-            if (cells[i][j].isMineHiddenIn && !cells[i][j].isFlagged) {
+            if (isMineHidden[i][j] && !isMarkedWithFlag[i][j]) {
               const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = FLAGGED_CELL
+              cell.className = 'cell cell--unopen cell--flagged'
             }
           }
         }
@@ -369,7 +148,406 @@ const touchCell = e => {
   }
 }
 
-const initializeBoard = () => {
+function initMines(e) {
+  const cell = e.target;
+  const i = strToInt(cell.dataset.col);
+  const j = strToInt(cell.dataset.row);
+
+  if (!hasGameStarted) {
+    hasGameStarted = true;
+    for (let k = 0; k < mines; k++) {
+      while (true) {
+        const row = rand(height);
+        const col = rand(width);
+        if (!isMineHidden[row][col] && !(i === row && j === col)) {
+          // (row, col)成分に爆弾が埋められていない，かつ，(row, col)成分が最初に開いたcellでないとき
+          isMineHidden[row][col] = true;
+          break;
+        }
+      }
+
+      /*
+      let row = rand(height);
+      let col = rand(width);
+      if (!isMineHidden[row][col] && !(i === row && j === col)) {
+        // (row, col)成分に爆弾が埋められていない，かつ，(row, col)成分が最初に開いたcellでないとき
+        isMineHidden[row][col] = true;
+      } else {
+        // (row, col)成分に爆弾が埋められている，または，(row,col)成分が最初に開いたcellのとき
+        // (row, col)成分の右隣のcellに移動し続け，そこに爆弾がなければ埋める
+        while (true) {
+          col++;
+          if (col === width) {
+            col = 0;
+            row++;
+            if (row === height) {
+              row = 0;
+            }
+          }
+          if (!isMineHidden[row][col] && !(i === row && j === col)) {
+            isMineHidden[row][col] = 1;
+            break;
+          }
+        }
+      }
+      */
+    }
+  }
+}
+
+// 0 以上 val 未満の整数乱数を返す
+function rand(val) {
+  return Math.floor(Math.random()*val);
+}
+
+function openCell(e) {
+  const cell = e.target;
+  const i = strToInt(cell.dataset.col);
+  const j = strToInt(cell.dataset.row);
+
+  if (!isCellOpen[i][j] && !isMarkedWithFlag[i][j]) {
+    if (isMineHidden[i][j]) {
+      isCellOpen[i][j] = true;
+      hasOpenedMinedCell = true;
+      cell.className = 'cell cell--exploded'
+    } else {
+      openSafeCell(i, j);
+      searchMines(i, j);
+    }
+  }
+}
+
+function strToInt(str) {
+  return parseInt(str, 10);
+}
+
+function openSafeCell(i, j) {
+  const cell = document.getElementById(`cell-${i}-${j}`);
+  isCellOpen[i][j] = true;
+  cell.className = 'cell cell--open';
+
+  safeCellCount--;
+}
+
+function searchMines(i, j) {
+  let cnt = 0;
+  if (i-1 >= 0 && j-1 >= 0 && isMineHidden[i-1][j-1]) {
+    cnt++;
+  }
+  if (i-1 >= 0 && j >= 0 && isMineHidden[i-1][j]) {
+    cnt++;
+  }
+  if (i-1 >= 0 && j+1 < width && isMineHidden[i-1][j+1]) {
+    cnt++;
+  }
+  if (i >= 0 && j-1 >= 0 && isMineHidden[i][j-1]) {
+    cnt++;
+  }
+  if (i >= 0 && j+1 < width && isMineHidden[i][j+1]) {
+    cnt++;
+  }
+  if (i+1 < height && j-1 >= 0 && isMineHidden[i+1][j-1]) {
+    cnt++;
+  }
+  if (i+1 < height && j >= 0 && isMineHidden[i+1][j]) {
+    cnt++;
+  }
+  if (i+1 < height && j+1 < width && isMineHidden[i+1][j+1]) {
+    cnt++;
+  }
+
+  if (cnt > 0) {
+    const cell = document.getElementById(`cell-${i}-${j}`);
+    cell.textContent = cnt;
+    cell.classList.add(`cnt-${cnt}`);
+  } else if (!hasOpenedMinedCell) {
+    if (i-1 >= 0 && j-1 >= 0 && !isCellOpen[i-1][j-1]) {
+      openSafeCell(i-1, j-1);
+      searchMines(i-1, j-1);
+    }
+    if (i-1 >= 0 && j >= 0 && !isCellOpen[i-1][j]) {
+      openSafeCell(i-1, j);
+      searchMines(i-1, j);
+    }
+    if (i-1 >= 0 && j+1 < width && !isCellOpen[i-1][j+1]) {
+      openSafeCell(i-1, j+1);
+      searchMines(i-1, j+1);
+    }
+    if (i >= 0 && j-1 >= 0 && !isCellOpen[i][j-1]) {
+      openSafeCell(i, j-1);
+      searchMines(i, j-1);
+    }
+    if (i >= 0 && j+1 < width && !isCellOpen[i][j+1]) {
+      openSafeCell(i, j+1);
+      searchMines(i, j+1);
+    }
+    if (i+1 < height && j-1 >= 0 && !isCellOpen[i+1][j-1]) {
+      openSafeCell(i+1, j-1);
+      searchMines(i+1, j-1);
+    }
+    if (i+1 < height && j >= 0 && !isCellOpen[i+1][j]) {
+      openSafeCell(i+1, j);
+      searchMines(i+1, j);
+    }
+    if (i+1 < height && j+1 < width && !isCellOpen[i+1][j+1]) {
+      openSafeCell(i+1, j+1);
+      searchMines(i+1, j+1);
+    }
+  }
+}
+
+function toggleFlag(e) {
+  e.preventDefault();
+
+  const cell = e.target;
+  const i = strToInt(cell.dataset.col);
+  const j = strToInt(cell.dataset.row);
+  if (!isCellOpen[i][j]) {
+    if (!isMarkedWithFlag[i][j]) {
+      isMarkedWithFlag[i][j] = true;
+      cell.className = 'cell cell--unopen cell--flagged';
+
+      remainingMines--;
+      if (remainingMines < 10) {
+        remains.textContent = `00${remainingMines}`;
+      } else if (remainingMines < 100) {
+        remains.textContent = `0${remainingMines}`;
+      }
+    } else {
+      isMarkedWithFlag[i][j] = false;
+      cell.className = 'cell cell--unopen';
+
+      remainingMines++;
+      if (remainingMines < 10) {
+        remains.textContent = `00${remainingMines}`;
+      } else if (remainingMines < 100) {
+        remains.textContent = `0${remainingMines}`;
+      }
+    }
+  }
+}
+
+function exeChording(e) {
+  const cell = e.target;
+  const i = strToInt(cell.dataset.col);
+  const j = strToInt(cell.dataset.row);
+
+  if (isCellOpen[i][j]) {
+    const mineCount = strToInt(cell.textContent);
+
+    let flagCount = 0;
+    if (i-1 >= 0 && j-1 >= 0 && isMarkedWithFlag[i-1][j-1]) {
+      flagCount++;
+    }
+    if (i-1 >= 0 && j >= 0 && isMarkedWithFlag[i-1][j]) {
+      flagCount++;
+    }
+    if (i-1 >= 0 && j+1 < width && isMarkedWithFlag[i-1][j+1]) {
+      flagCount++;
+    }
+    if (i >= 0 && j-1 >= 0 && isMarkedWithFlag[i][j-1]) {
+      flagCount++;
+    }
+    if (i >= 0 && j+1 < width && isMarkedWithFlag[i][j+1]) {
+      flagCount++;
+    }
+    if (i+1 < height && j-1 >= 0 && isMarkedWithFlag[i+1][j-1]) {
+      flagCount++;
+    }
+    if (i+1 < height && j >= 0 && isMarkedWithFlag[i+1][j]) {
+      flagCount++;
+    }
+    if (i+1 < height && j+1 < width && isMarkedWithFlag[i+1][j+1]) {
+      flagCount++;
+    }
+
+    if (mineCount === flagCount) {
+      let canExeChording = false;
+      if (i-1 >= 0 && j-1 >= 0 && isMarkedWithFlag[i-1][j-1] && !isMineHidden[i-1][j-1]) {
+      } else if (i-1 >= 0 && j >= 0 && isMarkedWithFlag[i-1][j] && !isMineHidden[i-1][j]) {
+      } else if (i-1 >= 0 && j+1 < width && isMarkedWithFlag[i-1][j+1] && !isMineHidden[i-1][j+1]) {
+      } else if (i >= 0 && j-1 >= 0 && isMarkedWithFlag[i][j-1] && !isMineHidden[i][j-1]) {
+      } else if (i >= 0 && j+1 < width && isMarkedWithFlag[i][j+1] && !isMineHidden[i][j+1]) {
+      } else if (i+1 < height && j-1 >= 0 && isMarkedWithFlag[i+1][j-1] && !isMineHidden[i+1][j-1]) {
+      } else if (i+1 < height && j >= 0 && isMarkedWithFlag[i+1][j] && !isMineHidden[i+1][j]) {
+      } else if (i+1 < height && j+1 < width && isMarkedWithFlag[i+1][j+1] && !isMineHidden[i+1][j+1]) {
+      } else {
+        canExeChording = true;
+      }
+
+      if (canExeChording) {
+        if (i-1 >= 0 && j-1 >= 0 && !isCellOpen[i-1][j-1] && !isMarkedWithFlag[i-1][j-1]) {
+          openSafeCell(i-1, j-1);
+          searchMines(i-1, j-1);
+        }
+        if (i-1 >= 0 && j >= 0 && !isCellOpen[i-1][j] && !isMarkedWithFlag[i-1][j]) {
+          openSafeCell(i-1, j);
+          searchMines(i-1, j);
+        }
+        if (i-1 >= 0 && j+1 < width && !isCellOpen[i-1][j+1] && !isMarkedWithFlag[i-1][j+1]) {
+          openSafeCell(i-1, j+1);
+          searchMines(i-1, j+1);
+        }
+        if (i >= 0 && j-1 >= 0 && !isCellOpen[i][j-1] && !isMarkedWithFlag[i][j-1]) {
+          openSafeCell(i, j-1);
+          searchMines(i, j-1);
+        }
+        if (i >= 0 && j+1 < width && !isCellOpen[i][j+1] && !isMarkedWithFlag[i][j+1]) {
+          openSafeCell(i, j+1);
+          searchMines(i, j+1);
+        }
+        if (i+1 < height && j-1 >= 0 && !isCellOpen[i+1][j-1] && !isMarkedWithFlag[i+1][j-1]) {
+          openSafeCell(i+1, j-1);
+          searchMines(i+1, j-1);
+        }
+        if (i+1 < height && j >= 0 && !isCellOpen[i+1][j] && !isMarkedWithFlag[i+1][j]) {
+          openSafeCell(i+1, j);
+          searchMines(i+1, j);
+        }
+        if (i+1 < height && j+1 < width && !isCellOpen[i+1][j+1] && !isMarkedWithFlag[i+1][j+1]) {
+          openSafeCell(i+1, j+1);
+          searchMines(i+1, j+1);
+        }
+      } else {
+        hasOpenedMinedCell = true;
+        if (i-1 >= 0 && j-1 >= 0 && !isCellOpen[i-1][j-1]) {
+          const c = document.getElementById(`cell-${i-1}-${j-1}`);
+          if (isMarkedWithFlag[i-1][j-1] && !isMineHidden[i-1][j-1]) {
+            // cell-${i-1}-${j-1}に爆弾がないのにflagが立てられているとき
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i-1][j-1] && isMineHidden[i-1][j-1]) {
+            // cell-${i-1}-${j-1}に爆弾があるのにflagが立っていないとき
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i-1][j-1]) {
+            // cell-${i-1}-${j-1}に爆弾がなくてflagも立っていないとき
+            openSafeCell(i-1, j-1);
+            searchMines(i-1, j-1);
+          }
+        }
+        if (i-1 >= 0 && j >= 0 && !isCellOpen[i-1][j]) {
+          const c = document.getElementById(`cell-${i-1}-${j}`);
+          if (isMarkedWithFlag[i-1][j] && !isMineHidden[i-1][j]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i-1][j] && isMineHidden[i-1][j]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i-1][j]) {
+            openSafeCell(i-1, j);
+            searchMines(i-1, j);
+          }
+        }
+        if (i-1 >= 0 && j+1 < width && !isCellOpen[i-1][j+1]) {
+          const c = document.getElementById(`cell-${i-1}-${j+1}`);
+          if (isMarkedWithFlag[i-1][j+1] && !isMineHidden[i-1][j+1]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i-1][j+1] && isMineHidden[i-1][j+1]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i-1][j+1]) {
+            openSafeCell(i-1, j+1);
+            searchMines(i-1, j+1);
+          }
+        }
+        if (i >= 0 && j-1 >= 0 && !isCellOpen[i][j-1]) {
+          const c = document.getElementById(`cell-${i}-${j-1}`);
+          if (isMarkedWithFlag[i][j-1] && !isMineHidden[i][j-1]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i][j-1] && isMineHidden[i][j-1]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i][j-1]) {
+            openSafeCell(i, j-1);
+            searchMines(i, j-1);
+          }
+        }
+        if (i >= 0 && j+1 < width && !isCellOpen[i][j+1]) {
+          const c = document.getElementById(`cell-${i}-${j+1}`);
+          if (isMarkedWithFlag[i][j+1] && !isMineHidden[i][j+1]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i][j+1] && isMineHidden[i][j+1]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i][j+1]) {
+            openSafeCell(i, j+1);
+            searchMines(i, j+1);
+          }
+        }
+        if (i+1 < height && j-1 >= 0 && !isCellOpen[i+1][j-1]) {
+          const c = document.getElementById(`cell-${i+1}-${j-1}`);
+          if (isMarkedWithFlag[i+1][j-1] && !isMineHidden[i+1][j-1]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i+1][j-1] && isMineHidden[i+1][j-1]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i+1][j-1]) {
+            openSafeCell(i+1, j-1);
+            searchMines(i+1, j-1);
+          }
+        }
+        if (i+1 < height && j >= 0 && !isCellOpen[i+1][j]) {
+          const c = document.getElementById(`cell-${i+1}-${j}`);
+          if (isMarkedWithFlag[i+1][j] && !isMineHidden[i+1][j]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i+1][j] && isMineHidden[i+1][j]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i+1][j]) {
+            openSafeCell(i+1, j);
+            searchMines(i+1, j);
+          }
+        }
+        if (i+1 < height && j+1 < width && !isCellOpen[i+1][j+1]) {
+          const c = document.getElementById(`cell-${i+1}-${j+1}`);
+          if (isMarkedWithFlag[i+1][j+1] && !isMineHidden[i+1][j+1]) {
+            c.className = 'cell cell--unopen cell--flagged cell--flagged-wrongly';
+          } else if (!isMarkedWithFlag[i+1][j+1] && isMineHidden[i+1][j+1]) {
+            c.className = 'cell cell--exploded';
+          } else if (!isMarkedWithFlag[i+1][j+1]) {
+            openSafeCell(i+1, j+1);
+            searchMines(i+1, j+1);
+          }
+        }
+      }
+    }
+  }
+}
+
+function advanceTimer() {
+  let now = strToInt(timer.textContent);
+  now++;
+  if (now < 10) {
+    timer.textContent = `00${now}`;
+  } else if (now < 100) {
+    timer.textContent = `0${now}`;
+  } else if (now < 1000) {
+    timer.textContent = `${now}`;
+  } else {
+    stopTimer();
+  }
+}
+
+function stopTimer() {
+  clearInterval(intervalId);
+  intervalId = null;
+}
+
+function initGame(e) {
+  isMineHidden = gen2DArray(height, width, false);
+  isCellOpen = gen2DArray(height, width, false);
+  isMarkedWithFlag = gen2DArray(height, width, false);
+
+  hasGameStarted = false;
+  hasOpenedMinedCell = false;
+  hasOpenedAllSafeCells = false;
+  safeCellCount = height*width-mines;
+  remainingMines = mines;
+  if (remainingMines < 10) {
+    remains.textContent = `00${remainingMines}`;
+  } else if (remainingMines < 100) {
+    remains.textContent = `0${remainingMines}`;
+  }
+  resetBtn.innerHTML = faceNormal;
+  timer.textContent = '000';
+  stopTimer();
+
+  initBoard();
+}
+
+function initBoard() {
   while (board.firstChild) {
     board.removeChild(board.firstChild);
   }
@@ -383,45 +561,17 @@ const initializeBoard = () => {
       const cellID = `cell-${i}-${j}`;
       cell.id = cellID;
   
-      cell.className = UNOPENED_CELL;
+      cell.className = 'cell cell--unopen';
   
-      cell.dataset.row = i;
-      cell.dataset.col = j;
+      cell.dataset.col = i;
+      cell.dataset.row = j;
   
       cell.addEventListener('click', touchCell);
       cell.addEventListener('contextmenu', toggleFlag);
   
       row.appendChild(cell);
     }
-    documentFragment.appendChild(row);
+    df.appendChild(row);
   }
-  board.appendChild(documentFragment);
+  board.appendChild(df);
 }
-
-initializeBoard();
-
-const switchButton = document.getElementsByClassName('switch')[0];
-let isFlagModeOn = false;
-switchButton.addEventListener('click', () => {
-  isFlagModeOn = switchButton.classList.toggle('switch--on');
-});
-
-const selector = document.getElementsByTagName('select')[0];
-selector.addEventListener('change', e => {
-  const level = e.target.value;
-  if (level === 'easy') {
-    height = HEIGHT_EASY;
-    width = WIDTH_EASY;
-    mines = MINES_EASY;
-  } else if (level === 'normal') {
-    height = HEIGHT_NORMAL;
-    width = WIDTH_NORMAL;
-    mines = MINES_NORMAL;
-  } else {
-    height = HEIGHT_HARD;
-    width = WIDTH_HARD;
-    mines = MINES_HARD;
-  }
-
-  initializeGame();
-});
