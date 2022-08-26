@@ -1,427 +1,116 @@
-const HEIGHT_EASY = 9;
-const HEIGHT_NORMAL = 16;
-const HEIGHT_HARD = 16;
-const WIDTH_EASY = 9;
-const WIDTH_NORMAL = 16;
-const WIDTH_HARD = 30;
-const MINES_EASY = 10;
-const MINES_NORMAL = 40;
-const MINES_HARD = 99;
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
 
-let height = HEIGHT_EASY;
-let width = WIDTH_EASY;
-let mines = MINES_EASY;
+/***/ "./src/main.ts":
+/*!*********************!*\
+  !*** ./src/main.ts ***!
+  \*********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-let hasGameStarted = false;
-let hasOpenedMinedCell = false;
-let hasOpenedAllSafeCells = false;
-let safeCellCount = height*width-mines;
-let remainingMines = mines;
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _modules_InitializeCells__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/InitializeCells */ \"./src/modules/InitializeCells.ts\");\n/* harmony import */ var _modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/SetMineCounter */ \"./src/modules/SetMineCounter.ts\");\n/* eslint-disable import/extensions */\n/* eslint-disable import/no-unresolved */\n/* eslint-disable lines-between-class-members */\n/* eslint-disable no-restricted-syntax */\n/* eslint-disable no-plusplus */\n\n\nconst HEIGHT_EASY = 9;\nconst HEIGHT_NORMAL = 16;\nconst HEIGHT_HARD = 16;\nconst WIDTH_EASY = 9;\nconst WIDTH_NORMAL = 16;\nconst WIDTH_HARD = 30;\nconst MINES_EASY = 10;\nconst MINES_NORMAL = 40;\nconst MINES_HARD = 99;\nlet height = HEIGHT_EASY;\nlet width = WIDTH_EASY;\nlet mines = MINES_EASY;\nlet hasGameStarted = false;\nlet hasOpenedMinedCell = false;\nlet hasOpenedAllSafeCells = false;\nlet safeCellCount = height * width - mines;\nlet remainingMines = mines;\nlet isFlagModeOn = false;\n(0,_modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(remainingMines);\nconst strToInt = (str) => parseInt(str, 10);\nconst timer = document.getElementsByClassName(\"timer\")[0];\nlet intervalId;\nconst stopTimer = () => {\n    clearInterval(intervalId);\n    intervalId = 0;\n};\nconst advanceTimer = () => {\n    let now = strToInt(timer.textContent);\n    now++;\n    if (now < 10) {\n        timer.textContent = `00${now}`;\n    }\n    else if (now < 100) {\n        timer.textContent = `0${now}`;\n    }\n    else if (now < 1000) {\n        timer.textContent = `${now}`;\n    }\n    else {\n        stopTimer();\n    }\n};\nlet cells = (0,_modules_InitializeCells__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(height, width);\nconst FACE_NORMAL = \"reset-button face-normal\";\nconst FACE_SUCCESS = \"reset-button face-success\";\nconst FACE_FAILURE = \"reset-button face-failure\";\nconst resetButton = (document.getElementsByClassName(\"reset-button\")[0]);\nconst changeFaceOfResetButton = (face) => {\n    resetButton.className = face;\n};\nchangeFaceOfResetButton(FACE_NORMAL);\nconst initializeGame = () => {\n    cells = (0,_modules_InitializeCells__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(height, width);\n    hasGameStarted = false;\n    hasOpenedMinedCell = false;\n    hasOpenedAllSafeCells = false;\n    safeCellCount = height * width - mines;\n    remainingMines = mines;\n    (0,_modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(remainingMines);\n    changeFaceOfResetButton(FACE_NORMAL);\n    timer.textContent = \"000\";\n    stopTimer();\n    // eslint-disable-next-line no-use-before-define\n    initializeBoard();\n};\nresetButton.addEventListener(\"click\", initializeGame);\nconst board = document.getElementsByClassName(\"board\")[0];\nconst documentFragment = document.createDocumentFragment();\nconst UNOPENED_CELL = \"cell cell--unopened\";\nconst OPENED_CELL = \"cell cell--opened\";\nconst FLAGGED_CELL = \"cell cell--unopened cell--flagged\";\nconst WRONGLY_FLAGGED_CELL = \"cell cell--unopened cell--flagged cell--flagged-wrongly\";\nconst MINED_CELL = \"cell cell--unopened cell--mined\";\nconst EXPLODED_CELL = \"cell cell--exploded\";\n// 0 以上 val 未満の整数乱数を返す\nconst random = (val) => Math.floor(Math.random() * val);\nconst initializeMines = (e) => {\n    const cellTouchedFirst = e.target;\n    if (!(cellTouchedFirst instanceof HTMLElement)) {\n        return;\n    }\n    const rowTouchedFirst = strToInt(cellTouchedFirst.dataset.row);\n    const columnTouchedFirst = strToInt(cellTouchedFirst.dataset.col);\n    if (!hasGameStarted) {\n        hasGameStarted = true;\n        for (let k = 0; k < mines; k++) {\n            // eslint-disable-next-line no-constant-condition\n            while (true) {\n                const rowPickedRandomly = random(height);\n                const columnPickedRandomly = random(width);\n                if (!cells[rowPickedRandomly][columnPickedRandomly]\n                    .isMineHiddenIn &&\n                    !(rowTouchedFirst === rowPickedRandomly &&\n                        columnTouchedFirst === columnPickedRandomly)) {\n                    // ランダムに選んだマスに爆弾が隠されていなくて，そのマスがクリックしたマスでないとき\n                    // そのマスに爆弾を配置する\n                    (cells[rowPickedRandomly][columnPickedRandomly]).isMineHiddenIn = true;\n                    break;\n                }\n            }\n            /*\n            let row = random(height);\n            let col = random(width);\n            if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {\n              // (row, col)成分に爆弾が埋められていない，かつ，(row, col)成分が最初に開いたcellでないとき\n              cells[row][col].isMineHiddenIn = true;\n            } else {\n              // (row, col)成分に爆弾が埋められている，または，(row,col)成分が最初に開いたcellのとき\n              // (row, col)成分の右隣のcellに移動し続け，そこに爆弾がなければ埋める\n              while (true) {\n                col++;\n                if (col === width) {\n                  col = 0;\n                  row++;\n                  if (row === height) {\n                    row = 0;\n                  }\n                }\n                if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {\n                  cells[row][col].isMineHiddenIn = 1;\n                  break;\n                }\n              }\n            }\n            */\n        }\n    }\n};\nconst openSafeCell = (i, j) => {\n    const safeCell = document.getElementById(`cell-${i}-${j}`);\n    cells[i][j].isOpened = true;\n    safeCell.className = OPENED_CELL;\n    safeCellCount--;\n};\n// row 行 col 列のマスの周囲8個のマスの行・列を返す\n// eslint-disable-next-line arrow-body-style\nconst getNeighborCellsIndex = (row, col) => {\n    return [\n        [row - 1, col - 1],\n        [row - 1, col],\n        [row - 1, col + 1],\n        [row, col - 1],\n        [row, col + 1],\n        [row + 1, col - 1],\n        [row + 1, col],\n        [row + 1, col + 1],\n    ];\n};\n// row 行 col 列の cell が board に含まれているかを判定\n// eslint-disable-next-line arrow-body-style\nconst checkIfCellIsInsideBoard = (row, col) => {\n    // eslint-disable-next-line yoda\n    return 0 <= row && row < height && 0 <= col && col < width;\n};\nconst searchMines = (i, j) => {\n    let numberOfNeighboringCells = 0;\n    const neighborCells = getNeighborCellsIndex(i, j);\n    for (const [row, col] of neighborCells) {\n        if (row === undefined || col === undefined) {\n            return;\n        }\n        if (checkIfCellIsInsideBoard(row, col) &&\n            cells[row][col].isMineHiddenIn) {\n            numberOfNeighboringCells++;\n        }\n    }\n    if (numberOfNeighboringCells > 0) {\n        const cell = document.getElementById(`cell-${i}-${j}`);\n        cell.textContent = `${numberOfNeighboringCells}`;\n        cell.classList.add(`cnt-${numberOfNeighboringCells}`);\n    }\n    else if (!hasOpenedMinedCell) {\n        // 周囲のマスに爆弾がないとき\n        // それらのマスのさらに周囲のマスに爆弾がないか調べる\n        for (const [row, col] of neighborCells) {\n            if (row === undefined || col === undefined) {\n                return;\n            }\n            if (checkIfCellIsInsideBoard(row, col) &&\n                !cells[row][col].isOpened) {\n                openSafeCell(row, col);\n                searchMines(row, col);\n            }\n        }\n    }\n};\nconst openCell = (e) => {\n    const cell = e.target;\n    if (!(cell instanceof HTMLElement)) {\n        return;\n    }\n    const i = strToInt(cell.dataset.row);\n    const j = strToInt(cell.dataset.col);\n    if (!cells[i][j].isOpened &&\n        !cells[i][j].isFlagged) {\n        // 開いていなくて旗も立っていないマスを開くとき\n        if (cells[i][j].isMineHiddenIn) {\n            // そのマスに爆弾が埋まっていたら\n            // そのマスを爆破してゲーム終了へ\n            cells[i][j].isOpened = true;\n            hasOpenedMinedCell = true;\n            cell.className = EXPLODED_CELL;\n        }\n        else {\n            // そのマスに爆弾が埋まっていなければ\n            // そのマスを開いて周囲の爆弾の数を表示\n            openSafeCell(i, j);\n            searchMines(i, j);\n        }\n    }\n};\nconst toggleFlag = (e) => {\n    e.preventDefault();\n    if (!intervalId) {\n        intervalId = window.setInterval(advanceTimer, 1000);\n    }\n    const cell = e.target;\n    if (!(cell instanceof HTMLElement)) {\n        return;\n    }\n    const i = strToInt(cell.dataset.row);\n    const j = strToInt(cell.dataset.col);\n    if (!cells[i][j].isOpened) {\n        // マスが空いていないとき\n        if (!cells[i][j].isFlagged) {\n            // そのマスに旗が立っていなければ\n            // 旗を立てる\n            cells[i][j].isFlagged = true;\n            cell.className = FLAGGED_CELL;\n            remainingMines--;\n            (0,_modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(remainingMines);\n        }\n        else {\n            // そのマスに旗が立っていれば\n            // 旗を取る\n            cells[i][j].isFlagged = false;\n            cell.className = UNOPENED_CELL;\n            remainingMines++;\n            (0,_modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(remainingMines);\n        }\n    }\n};\nconst exeChording = (e) => {\n    const cell = e.target;\n    if (!(cell instanceof HTMLElement)) {\n        return;\n    }\n    const i = strToInt(cell.dataset.row);\n    const j = strToInt(cell.dataset.col);\n    if (cells[i][j].isOpened) {\n        // 空いているマスをクリックしたとき\n        const mineCount = strToInt(cell.textContent);\n        let flagCount = 0;\n        const neighborCells = getNeighborCellsIndex(i, j);\n        for (const [row, col] of neighborCells) {\n            if (row === undefined || col === undefined) {\n                return;\n            }\n            if (checkIfCellIsInsideBoard(row, col) &&\n                cells[row][col].isFlagged) {\n                flagCount++;\n            }\n        }\n        if (mineCount === flagCount) {\n            // そのマスに描かれている数と周囲の旗の数が一致しているとき\n            // 一旦コーディングできるとする\n            let canExeChording = true;\n            for (const [row, col] of neighborCells) {\n                if (row === undefined || col === undefined) {\n                    return;\n                }\n                if (checkIfCellIsInsideBoard(row, col) &&\n                    cells[row][col].isFlagged &&\n                    !cells[row][col].isMineHiddenIn) {\n                    // 爆弾のないマスに旗が立っているとき\n                    // コーディングできない\n                    canExeChording = false;\n                }\n            }\n            if (canExeChording) {\n                // コーディングできるとき\n                for (const [row, col] of neighborCells) {\n                    if (row === undefined || col === undefined) {\n                        return;\n                    }\n                    if (checkIfCellIsInsideBoard(row, col) &&\n                        !cells[row][col].isOpened &&\n                        !cells[row][col].isFlagged) {\n                        // 周囲のマスのうち，開いていなくて，かつ，旗が立っていないマス\n                        // すなわち安全に開けるマスに対し\n                        // コーディングを実行\n                        openSafeCell(row, col);\n                        searchMines(row, col);\n                    }\n                }\n            }\n            else {\n                // コーディングできない，すなわち，爆弾のないマスに旗が立っているとき\n                hasOpenedMinedCell = true;\n                for (const [row, col] of neighborCells) {\n                    if (row === undefined || col === undefined) {\n                        return;\n                    }\n                    const neighboringCell = (document.getElementById(`cell-${row}-${col}`));\n                    if (checkIfCellIsInsideBoard(row, col) &&\n                        !cells[row][col].isOpened) {\n                        // 周囲の開いていないマスに対し以下を実行\n                        if (cells[row][col].isFlagged &&\n                            !cells[row][col].isMineHiddenIn) {\n                            // cell-${row}-${col}に爆弾がないのにflagが立てられているとき\n                            neighboringCell.className = WRONGLY_FLAGGED_CELL;\n                        }\n                        else if (!cells[row][col].isFlagged &&\n                            cells[row][col].isMineHiddenIn) {\n                            // cell-${row}-${col}に爆弾があるのにflagが立っていないとき\n                            neighboringCell.className = EXPLODED_CELL;\n                        }\n                        else if (!cells[row][col].isFlagged) {\n                            // cell-${row}-${col}に爆弾がなくてflagも立っていないとき\n                            openSafeCell(row, col);\n                            searchMines(row, col);\n                        }\n                    }\n                }\n            }\n        }\n    }\n};\nconst touchCell = (e) => {\n    if (!hasGameStarted && !isFlagModeOn) {\n        // ゲームが始まっていない状態でマスを開こうとしたとき\n        // 爆弾の配置を初期化して，クリックされたマスを開く\n        initializeMines(e);\n        openCell(e);\n        if (!intervalId) {\n            intervalId = window.setInterval(advanceTimer, 1000);\n        }\n    }\n    else {\n        // ゲームが始まっている，もしくは，マスの旗をつけ外しするとき\n        const touchedCell = e.target;\n        if (!(touchedCell instanceof HTMLElement)) {\n            return;\n        }\n        const touchedRow = strToInt(touchedCell.dataset.row);\n        const touchedColumn = strToInt(touchedCell.dataset.col);\n        if (isFlagModeOn &&\n            !cells[touchedRow][touchedColumn].isOpened) {\n            // 開いていないマスをクリックして旗をつけ外しするとき\n            toggleFlag(e);\n            if (!intervalId) {\n                intervalId = window.setInterval(advanceTimer, 1000);\n            }\n        }\n        else if (!cells[touchedRow][touchedColumn].isOpened) {\n            // フラグモードがオフで開いていないマスをクリックしたとき\n            openCell(e);\n        }\n        else {\n            // 開かれているマスをクリックしたとき\n            exeChording(e);\n        }\n        if (safeCellCount === 0) {\n            hasOpenedAllSafeCells = true;\n        }\n        if (hasOpenedMinedCell || hasOpenedAllSafeCells) {\n            // 爆弾のマスを開いてしまったか，もしくは，安全なマスを全て開いたとき\n            // ゲームを終了させる\n            stopTimer();\n            for (let i = 0; i < height; i++) {\n                for (let j = 0; j < width; j++) {\n                    const eachCell = (document.getElementById(`cell-${i}-${j}`));\n                    eachCell.removeEventListener(\"click\", touchCell);\n                    eachCell.removeEventListener(\"contextmenu\", toggleFlag);\n                }\n            }\n            if (hasOpenedMinedCell) {\n                // 爆弾のマスを開いてしまったとき\n                // 残りの爆弾を表示する\n                changeFaceOfResetButton(FACE_FAILURE);\n                for (let i = 0; i < height; i++) {\n                    for (let j = 0; j < width; j++) {\n                        if (!cells[i][j].isOpened &&\n                            cells[i][j].isMineHiddenIn &&\n                            !cells[i][j].isFlagged) {\n                            const minedCell = (document.getElementById(`cell-${i}-${j}`));\n                            minedCell.className = MINED_CELL;\n                        }\n                        else if (!cells[i][j].isOpened &&\n                            !cells[i][j].isMineHiddenIn &&\n                            cells[i][j].isFlagged) {\n                            const wronglyFlaggedCell = (document.getElementById(`cell-${i}-${j}`));\n                            wronglyFlaggedCell.className = WRONGLY_FLAGGED_CELL;\n                        }\n                    }\n                }\n            }\n            else {\n                // 安全なマスを全て開いたとき\n                changeFaceOfResetButton(FACE_SUCCESS);\n                remainingMines = 0;\n                (0,_modules_SetMineCounter__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(remainingMines);\n                for (let i = 0; i < height; i++) {\n                    for (let j = 0; j < width; j++) {\n                        if (cells[i][j].isMineHiddenIn &&\n                            !cells[i][j].isFlagged) {\n                            const minedUnflaggedCell = (document.getElementById(`cell-${i}-${j}`));\n                            minedUnflaggedCell.className = FLAGGED_CELL;\n                        }\n                    }\n                }\n            }\n        }\n    }\n};\nconst initializeBoard = () => {\n    while (board.firstChild) {\n        board.removeChild(board.firstChild);\n    }\n    for (let i = 0; i < height; i++) {\n        const row = document.createElement(\"div\");\n        row.className = \"row\";\n        for (let j = 0; j < width; j++) {\n            const cell = document.createElement(\"div\");\n            const cellID = `cell-${i}-${j}`;\n            cell.id = cellID;\n            cell.className = UNOPENED_CELL;\n            cell.dataset.row = `${i}`;\n            cell.dataset.col = `${j}`;\n            cell.addEventListener(\"click\", touchCell);\n            cell.addEventListener(\"contextmenu\", toggleFlag);\n            row.appendChild(cell);\n        }\n        documentFragment.appendChild(row);\n    }\n    board.appendChild(documentFragment);\n};\ninitializeBoard();\nconst switchButton = document.getElementsByClassName(\"switch\")[0];\nswitchButton.addEventListener(\"click\", () => {\n    isFlagModeOn = switchButton.classList.toggle(\"switch--on\");\n});\nconst selector = document.getElementsByTagName(\"select\")[0];\nselector.addEventListener(\"change\", (e) => {\n    const { target } = e;\n    if (!(target instanceof HTMLSelectElement)) {\n        return;\n    }\n    const level = target.value;\n    if (level === \"easy\") {\n        height = HEIGHT_EASY;\n        width = WIDTH_EASY;\n        mines = MINES_EASY;\n    }\n    else if (level === \"normal\") {\n        height = HEIGHT_NORMAL;\n        width = WIDTH_NORMAL;\n        mines = MINES_NORMAL;\n    }\n    else {\n        height = HEIGHT_HARD;\n        width = WIDTH_HARD;\n        mines = MINES_HARD;\n    }\n    initializeGame();\n});\n\n\n//# sourceURL=webpack://minesweeper/./src/main.ts?");
 
-const remains = document.getElementsByClassName('remains')[0];
-const setMineCounter = () => {
-  if (remainingMines <= -100) {
-    remains.textContent = `-99`;
-  } else if (remainingMines <= -10) {
-    remains.textContent = remainingMines;
-  } else if (remainingMines <= -1) {
-    remains.textContent = `- ${-remainingMines}`;
-  } else if (remainingMines <= 9) {
-    remains.textContent = `00${remainingMines}`;
-  } else if (remainingMines <= 99) {
-    remains.textContent = `0${remainingMines}`;
-  } else if (remainingMines <= 999) {
-    remains.textContent = remainingMines;
-  } else {
-    remains.textContent = `999`;
-  }
-}
-setMineCounter();
+/***/ }),
 
+/***/ "./src/modules/Cell.ts":
+/*!*****************************!*\
+  !*** ./src/modules/Cell.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-const timer = document.getElementsByClassName('timer')[0];
-let intervalId;
-const advanceTimer = () => {
-  let now = strToInt(timer.textContent);
-  now++;
-  if (now < 10) {
-    timer.textContent = `00${now}`;
-  } else if (now < 100) {
-    timer.textContent = `0${now}`;
-  } else if (now < 1000) {
-    timer.textContent = `${now}`;
-  } else {
-    stopTimer();
-  }
-}
-const stopTimer = () => {
-  clearInterval(intervalId);
-  intervalId = null;
-}
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\nclass Cell {\n    constructor() {\n        this.isMineHiddenIn = false;\n        this.isOpened = false;\n        this.isFlagged = false;\n    }\n}\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Cell);\n\n\n//# sourceURL=webpack://minesweeper/./src/modules/Cell.ts?");
 
-class Cell {
-  constructor() {
-    this.isMineHiddenIn = false;
-    this.isOpened = false;
-    this.isFlagged = false;
-  }
-}
-let cells = JSON.parse(JSON.stringify((new Array(height)).fill((new Array(width)).fill(new Cell()))));
+/***/ }),
 
-const initializeGame = () => {
-  cells = JSON.parse(JSON.stringify((new Array(height)).fill((new Array(width)).fill(new Cell()))));
+/***/ "./src/modules/InitializeCells.ts":
+/*!****************************************!*\
+  !*** ./src/modules/InitializeCells.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-  hasGameStarted = false;
-  hasOpenedMinedCell = false;
-  hasOpenedAllSafeCells = false;
-  safeCellCount = height*width-mines;
-  remainingMines = mines;
-  setMineCounter();
-  changeFaceOfResetButton(FACE_NORMAL);
-  timer.textContent = '000';
-  stopTimer();
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _Cell__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Cell */ \"./src/modules/Cell.ts\");\n// eslint-disable-next-line import/no-unresolved, import/extensions\n\nconst initializeCells = (rowSize, columnSize) => JSON.parse(JSON.stringify(new Array(rowSize).fill(new Array(columnSize).fill(new _Cell__WEBPACK_IMPORTED_MODULE_0__[\"default\"]()))));\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (initializeCells);\n\n\n//# sourceURL=webpack://minesweeper/./src/modules/InitializeCells.ts?");
 
-  initializeBoard();
-}
+/***/ }),
 
-const FACE_NORMAL = twemoji.convert.fromCodePoint('1F642');
-const FACE_SUCCESS = twemoji.convert.fromCodePoint('1F60E');
-const FACE_FAILURE = twemoji.convert.fromCodePoint('1F635');
+/***/ "./src/modules/SetMineCounter.ts":
+/*!***************************************!*\
+  !*** ./src/modules/SetMineCounter.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-const resetButton = document.getElementsByClassName('reset-button')[0];
-resetButton.addEventListener('click', initializeGame);
-const changeFaceOfResetButton = (face) => {
-  resetButton.textContent = face;
-  twemoji.parse(resetButton, {
-    folder: 'svg',
-    ext: '.svg'
-  });
-}
-changeFaceOfResetButton(FACE_NORMAL);
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\nconst remains = document.getElementsByClassName(\"remains\")[0];\nconst setMineCounter = (remainingMines) => {\n    if (remains === undefined) {\n        return;\n    }\n    if (remainingMines <= -100) {\n        remains.textContent = \"-99\";\n    }\n    else if (remainingMines <= -10) {\n        remains.textContent = `${remainingMines}`;\n    }\n    else if (remainingMines <= -1) {\n        remains.textContent = `- ${-remainingMines}`;\n    }\n    else if (remainingMines <= 9) {\n        remains.textContent = `00${remainingMines}`;\n    }\n    else if (remainingMines <= 99) {\n        remains.textContent = `0${remainingMines}`;\n    }\n    else if (remainingMines <= 999) {\n        remains.textContent = `${remainingMines}`;\n    }\n    else {\n        remains.textContent = \"999\";\n    }\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (setMineCounter);\n\n\n//# sourceURL=webpack://minesweeper/./src/modules/SetMineCounter.ts?");
 
-const board = document.getElementsByClassName('board')[0];
-const documentFragment = document.createDocumentFragment();
+/***/ })
 
-const UNOPENED_CELL = 'cell cell--unopened';
-const OPENED_CELL = 'cell cell--opened';
-const FLAGGED_CELL = 'cell cell--unopened cell--flagged';
-const WRONGLY_FLAGGED_CELL = 'cell cell--unopened cell--flagged cell--flagged-wrongly';
-const MINED_CELL = 'cell cell--unopened cell--mined';
-const EXPLODED_CELL = 'cell cell--exploded';
-
-const strToInt = (str) => parseInt(str, 10);
-
-// 0 以上 val 未満の整数乱数を返す
-const random = (val) =>  Math.floor(Math.random()*val);
-
-const initializeMines = e => {
-  const cell = e.target;
-  const rowTouchedFirst = strToInt(cell.dataset.row);
-  const columnTouchedFirst = strToInt(cell.dataset.col);
-
-  if (!hasGameStarted) {
-    hasGameStarted = true;
-    for (let k = 0; k < mines; k++) {
-      while (true) {
-        const rowPickedRandomly = random(height);
-        const columnPickedRandomly = random(width);
-        if (!cells[rowPickedRandomly][columnPickedRandomly].isMineHiddenIn && !(rowTouchedFirst === rowPickedRandomly && columnTouchedFirst === columnPickedRandomly)) {
-          cells[rowPickedRandomly][columnPickedRandomly].isMineHiddenIn = true;
-          break;
-        }
-      }
-
-      /*
-      let row = random(height);
-      let col = random(width);
-      if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {
-        // (row, col)成分に爆弾が埋められていない，かつ，(row, col)成分が最初に開いたcellでないとき
-        cells[row][col].isMineHiddenIn = true;
-      } else {
-        // (row, col)成分に爆弾が埋められている，または，(row,col)成分が最初に開いたcellのとき
-        // (row, col)成分の右隣のcellに移動し続け，そこに爆弾がなければ埋める
-        while (true) {
-          col++;
-          if (col === width) {
-            col = 0;
-            row++;
-            if (row === height) {
-              row = 0;
-            }
-          }
-          if (!cells[row][col].isMineHiddenIn && !(i === row && j === col)) {
-            cells[row][col].isMineHiddenIn = 1;
-            break;
-          }
-        }
-      }
-      */
-    }
-  }
-}
-
-const openSafeCell = (i, j) => {
-  const cell = document.getElementById(`cell-${i}-${j}`);
-  cells[i][j].isOpened = true;
-  cell.className = OPENED_CELL;
-
-  safeCellCount--;
-}
-
-// row 行 col 列のマスの周囲8個のマスの行・列を返す
-const getNeighborCellsIndex = (row, col) => {
-  return [[row-1, col-1], [row-1, col], [row-1, col+1],
-          [row, col-1],                 [row, col+1],
-          [row+1, col-1], [row+1, col], [row+1, col+1]];
-}
-
-// row 行 col 列の cell が board に含まれているかを判定
-const checkIfCellIsInsideBoard = (row, col) => 0 <= row && row < height && 0 <= col && col < width;
-
-const searchMines = (i, j) => {
-  let cnt = 0;
-  const neighborCells = getNeighborCellsIndex(i, j);
-
-  for (const [row, col] of neighborCells) {
-    if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isMineHiddenIn) {
-      cnt++;
-    }
-  }
-
-  if (cnt > 0) {
-    const cell = document.getElementById(`cell-${i}-${j}`);
-    cell.textContent = cnt;
-    cell.classList.add(`cnt-${cnt}`);
-  } else if (!hasOpenedMinedCell) {
-    for (const [row, col] of neighborCells) {
-      if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened) {
-        openSafeCell(row, col);
-        searchMines(row, col);
-      }
-    }
-  }
-}
-
-const openCell = e => {
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-
-  if (!cells[i][j].isOpened && !cells[i][j].isFlagged) {
-    if (cells[i][j].isMineHiddenIn) {
-      cells[i][j].isOpened = true;
-      hasOpenedMinedCell = true;
-      cell.className = EXPLODED_CELL;
-    } else {
-      openSafeCell(i, j);
-      searchMines(i, j);
-    }
-  }
-}
-
-const toggleFlag = e => {
-  e.preventDefault();
-
-  if (!intervalId) {
-    intervalId = setInterval(advanceTimer, 1000);
-  }
-
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-  if (!cells[i][j].isOpened) {
-    if (!cells[i][j].isFlagged) {
-      cells[i][j].isFlagged = true;
-      cell.className = FLAGGED_CELL;
-
-      remainingMines--;
-      setMineCounter();
-    } else {
-      cells[i][j].isFlagged = false;
-      cell.className = UNOPENED_CELL;
-
-      remainingMines++;
-      setMineCounter();
-    }
-  }
-}
-
-const exeChording = e => {
-  const cell = e.target;
-  const i = strToInt(cell.dataset.row);
-  const j = strToInt(cell.dataset.col);
-
-  if (cells[i][j].isOpened) {
-    const mineCount = strToInt(cell.textContent);
-
-    let flagCount = 0;
-    const neighborCells = getNeighborCellsIndex(i, j);
-
-    for (const [row, col] of neighborCells) {
-      if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isFlagged) {
-        flagCount++;
-      }
-    }
-
-    if (mineCount === flagCount) {
-      let canExeChording = true;
-      for (const [row, col] of neighborCells) {
-        if (checkIfCellIsInsideBoard(row, col) && cells[row][col].isFlagged && !cells[row][col].isMineHiddenIn) {
-          canExeChording = false;
-        }
-      }
-
-      if (canExeChording) {
-        for (const [row, col] of neighborCells) {
-          if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened && !cells[row][col].isFlagged) {
-            openSafeCell(row, col);
-            searchMines(row, col);
-          }
-        }
-      } else {
-        hasOpenedMinedCell = true;
-        for (const [row, col] of neighborCells) {
-          const c = document.getElementById(`cell-${row}-${col}`);
-          if (checkIfCellIsInsideBoard(row, col) && !cells[row][col].isOpened) {
-            if (cells[row][col].isFlagged && !cells[row][col].isMineHiddenIn) {
-              // cell-${row}-${col}に爆弾がないのにflagが立てられているとき
-              c.className = WRONGLY_FLAGGED_CELL;
-            } else if (!cells[row][col].isFlagged && cells[row][col].isMineHiddenIn) {
-              // cell-${row}-${col}に爆弾があるのにflagが立っていないとき
-              c.className = EXPLODED_CELL;
-            } else if (!cells[row][col].isFlagged) {
-              // cell-${row}-${col}に爆弾がなくてflagも立っていないとき
-              openSafeCell(row, col);
-              searchMines(row, col);
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-const touchCell = e => {
-  if (!hasGameStarted && !isFlagModeOn) {
-    initializeMines(e);
-    openCell(e);
-
-    if (!intervalId) {
-      intervalId = setInterval(advanceTimer, 1000);
-    }
-  } else {
-    const cell = e.target;
-    const i = strToInt(cell.dataset.row);
-    const j = strToInt(cell.dataset.col);
-
-    if (isFlagModeOn && !cells[i][j].isOpened) {
-      toggleFlag(e);
-      if (!intervalId) {
-        intervalId = setInterval(advanceTimer, 1000);
-      }
-    } else if (!cells[i][j].isOpened) {
-      openCell(e);
-    } else {
-      exeChording(e);
-    }
-
-    if (safeCellCount === 0) {
-      hasOpenedAllSafeCells = true;
-    }
-
-    if (hasOpenedMinedCell || hasOpenedAllSafeCells) {
-      stopTimer();
-      for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-          const cell = document.getElementById(`cell-${i}-${j}`);
-          cell.removeEventListener('click', touchCell);
-          cell.removeEventListener('contextmenu', toggleFlag);
-        }
-      }
-
-      if (hasOpenedMinedCell) {
-        changeFaceOfResetButton(FACE_FAILURE);
-        for (let i = 0; i < height; i++) {
-          for (let j = 0; j < width; j++) {
-            if (!cells[i][j].isOpened && cells[i][j].isMineHiddenIn && !cells[i][j].isFlagged) {
-              const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = MINED_CELL;
-            } else if (!cells[i][j].isOpened && !cells[i][j].isMineHiddenIn && cells[i][j].isFlagged) {
-              const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = WRONGLY_FLAGGED_CELL;
-            }
-          }
-        }
-      } else {
-        changeFaceOfResetButton(FACE_SUCCESS);
-        remainingMines = 0;
-        setMineCounter();
-        for (let i = 0; i < height; i++) {
-          for (let j = 0; j < width; j++) {
-            if (cells[i][j].isMineHiddenIn && !cells[i][j].isFlagged) {
-              const cell = document.getElementById(`cell-${i}-${j}`);
-              cell.className = FLAGGED_CELL
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-const initializeBoard = () => {
-  while (board.firstChild) {
-    board.removeChild(board.firstChild);
-  }
-
-  for (let i = 0; i < height; i++) {
-    const row = document.createElement('div');
-    row.className ='row';
-    for (let j = 0; j < width; j++) {
-      const cell = document.createElement('div');
-  
-      const cellID = `cell-${i}-${j}`;
-      cell.id = cellID;
-  
-      cell.className = UNOPENED_CELL;
-  
-      cell.dataset.row = i;
-      cell.dataset.col = j;
-  
-      cell.addEventListener('click', touchCell);
-      cell.addEventListener('contextmenu', toggleFlag);
-  
-      row.appendChild(cell);
-    }
-    documentFragment.appendChild(row);
-  }
-  board.appendChild(documentFragment);
-}
-
-initializeBoard();
-
-const switchButton = document.getElementsByClassName('switch')[0];
-let isFlagModeOn = false;
-switchButton.addEventListener('click', () => {
-  isFlagModeOn = switchButton.classList.toggle('switch--on');
-});
-
-const selector = document.getElementsByTagName('select')[0];
-selector.addEventListener('change', e => {
-  const level = e.target.value;
-  if (level === 'easy') {
-    height = HEIGHT_EASY;
-    width = WIDTH_EASY;
-    mines = MINES_EASY;
-  } else if (level === 'normal') {
-    height = HEIGHT_NORMAL;
-    width = WIDTH_NORMAL;
-    mines = MINES_NORMAL;
-  } else {
-    height = HEIGHT_HARD;
-    width = WIDTH_HARD;
-    mines = MINES_HARD;
-  }
-
-  initializeGame();
-});
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/main.ts");
+/******/ 	
+/******/ })()
+;

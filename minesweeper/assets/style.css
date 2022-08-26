@@ -1,8 +1,8 @@
 @charset "utf-8";
 
 body {
-  font-family: 'Philosopher', sans-serif;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Philosopher", sans-serif;
+  font-family: "Roboto Mono", monospace;
 }
 
 .wrapper {
@@ -19,8 +19,8 @@ body {
 }
 
 .level-selection::after {
-  content: '\f107';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f107";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   position: relative;
   right: 26px;
@@ -53,8 +53,8 @@ body {
 .remains,
 .timer {
   border: 1px solid #000;
-  font-family: 'Philosopher', sans-serif;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Philosopher", sans-serif;
+  font-family: "Roboto Mono", monospace;
   background-color: #000;
   color: #f00;
   display: inline-block;
@@ -74,7 +74,18 @@ body {
   border-bottom: 4px solid #888;
   border-left: 4px solid #fff;
   padding: 1px;
-  cursor: pointer;
+}
+
+.face-normal {
+  background-image: url(./svg/1f642.svg);
+}
+
+.face-success {
+  background-image: url(./svg/1f60e.svg);
+}
+
+.face-failure {
+  background-image: url(./svg/1f635.svg);
 }
 
 .board {
@@ -99,8 +110,8 @@ body {
   background: #ccc;
   cursor: default;
   text-align: center;
-  font-family: 'Philosopher', sans-serif;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Philosopher", sans-serif;
+  font-family: "Roboto Mono", monospace;
 
   /* https://developer.mozilla.org/ja/docs/Web/CSS/user-select#examples */
   -moz-user-select: none;
@@ -126,15 +137,15 @@ body {
   border-left: 2px solid #888;
 }
 .cell--exploded::before {
-  content: '\e4e9';
-  font-family: 'Font Awesome 5 Free';
+  content: "\e4e9";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   color: #000;
 }
 
 .cell--flagged::before {
-  content: '\f024';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f024";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   color: #f00;
 }
@@ -144,8 +155,8 @@ body {
 }
 
 .cell--mined::before {
-  content: '\f1e2';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f1e2";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   color: #000;
 }
@@ -189,7 +200,7 @@ body {
 .switch::before {
   background-color: #fff;
   border-radius: 100%;
-  content: '';
+  content: "";
   display: block;
   height: 24px;
   margin-left: 1px;
