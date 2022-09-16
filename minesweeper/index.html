@@ -1,61 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Minesweeper</title>
-    <meta name="description" content="Minesweeper" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- reset CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css" />
-
-    <link rel="stylesheet" href="./assets/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
 
     <!-- Font Awesome -->
-    <script
-      src="https://kit.fontawesome.com/a1a82f0e59.js"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://kit.fontawesome.com/a1a82f0e59.js" crossorigin="anonymous"></script>
 
     <!-- Google Fonts - Roboto Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Philosopher:wght@700&family=Roboto+Mono:wght@700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index.f80b23dd.js"></script>
+    <link rel="stylesheet" href="/assets/index.d06aaf5c.css">
   </head>
   <body>
-    <header class="wrapper">
-      <h1>Minesweeper</h1>
-    </header>
-
-    <main class="wrapper">
-      <div class="level-selection">
-        <label for="level">Level:</label>
-        <select name="level" id="level">
-          <option value="easy">EASY</option>
-          <option value="normal">NORMAL</option>
-          <option value="hard">HARD</option>
-        </select>
-      </div>
-
-      <div class="play-area">
-        <div class="top-area">
-          <div class="remains"></div>
-          <button class="reset-button"></button>
-          <div class="timer">000</div>
-        </div>
-
-        <div class="board"></div>
-      </div>
-
-      <div class="bottom-area">
-        <div class="switch"></div>
-        <i class="fa-solid fa-flag flag-icon"></i>
-      </div>
-    </main>
-
-    <script src="main.js"></script>
+    <div id="app"></div>
+    
   </body>
 </html>
